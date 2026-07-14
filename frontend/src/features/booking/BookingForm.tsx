@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, ApiRequestError } from "../../api/client";
 import type { Booking } from "../../api/types";
 import { formatCents } from "../../lib/money";
+import { cardDigits, formatCardNumber, isPlausibleCard } from "../../lib/card";
 import { BagStepper } from "./BagStepper";
 import { BookingPlaced } from "./BookingPlaced";
 
@@ -20,10 +21,10 @@ export function BookingForm() {
   const mutation = useMutation<Booking, ApiRequestError>({
     mutationFn: () =>
       api.createBooking({
-        customer_name: name,
-        customer_email: email,
+        customer_name: name.trim(),
+        customer_email: email.trim(),
         num_bags: numBags,
-        card_number: cardNumber,
+        card_number: cardDigits(cardNumber),
       }),
   });
 
@@ -32,7 +33,7 @@ export function BookingForm() {
   const isValid =
     name.trim() !== "" &&
     /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) &&
-    cardNumber.trim() !== "" &&
+    isPlausibleCard(cardNumber) &&
     numBags >= 1;
 
   if (mutation.isSuccess) {
@@ -94,7 +95,7 @@ export function BookingForm() {
               autoComplete="cc-number"
               placeholder="4242 4242 4242 4242"
               value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
+              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
               className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
             />
           </label>
