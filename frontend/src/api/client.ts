@@ -1,11 +1,7 @@
 // Typed fetch client for the Phoenix backend.
 // Base URL comes from VITE_API_URL (see .env.example).
 
-import type {
-  Booking,
-  CreateBookingInput,
-  PaymentInput,
-} from "./types";
+import type { Booking, CreateBookingInput, Store } from "./types";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4001";
 
@@ -30,20 +26,32 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await res.json().catch(() => null);
 
   if (!res.ok) {
-    throw new ApiRequestError(
-      res.status,
-      body?.detail ?? body?.error ?? res.statusText,
-      body?.error_code,
-    );
+    // Prefer the decline detail / first validation error for the message.
+    const message =
+      body?.detail ??
+      firstValidationError(body?.errors) ??
+      body?.error ??
+      res.statusText;
+    throw new ApiRequestError(res.status, message, body?.error_code);
   }
 
   return body as T;
 }
 
+function firstValidationError(
+  errors?: Record<string, string[]>,
+): string | undefined {
+  if (!errors) return undefined;
+  const [field, messages] = Object.entries(errors)[0] ?? [];
+  return field && messages?.length ? `${field} ${messages[0]}` : undefined;
+}
+
 export const api = {
   health: () => request<{ status: string }>("/api/health"),
 
-  // TODO: wire these to the wizard once the backend endpoints are implemented.
+  getStore: () => request<Store>("/api/store"),
+
+  // Creates the booking and charges it in one request.
   createBooking: (input: CreateBookingInput) =>
     request<Booking>("/api/bookings", {
       method: "POST",
@@ -51,10 +59,4 @@ export const api = {
     }),
 
   getBooking: (id: string) => request<Booking>(`/api/bookings/${id}`),
-
-  payBooking: (id: string, input: PaymentInput) =>
-    request<Booking>(`/api/bookings/${id}/payment`, {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
 };

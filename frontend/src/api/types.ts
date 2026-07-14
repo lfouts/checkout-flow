@@ -3,13 +3,18 @@
 
 export type BookingStatus = "pending" | "paid" | "failed";
 
+// GET /api/store
+export interface Store {
+  name: string;
+  price_per_bag_cents: number;
+  currency: string;
+}
+
 export interface Booking {
   id: string;
   customer_name: string;
   customer_email: string;
   num_bags: number;
-  dropoff_at: string; // ISO 8601
-  pickup_at: string; // ISO 8601
   currency: string;
   amount_cents: number;
   processing_fee_cents: number | null;
@@ -20,38 +25,19 @@ export interface Booking {
   updated_at: string;
 }
 
-// POST /api/bookings — customer + reservation details.
-// NOTE: amount is NOT sent by the client; the backend prices the booking.
+// POST /api/bookings — creates the booking AND charges it in one request.
+// NOTE: the amount is NOT sent by the client; the backend prices the booking.
+// The card number is sent once and never stored client-side.
 export interface CreateBookingInput {
   customer_name: string;
   customer_email: string;
   num_bags: number;
-  dropoff_at: string;
-  pickup_at: string;
-}
-
-// POST /api/bookings/:id/payment — card details are sent to our backend,
-// which forwards them to the mock Payments API. Never stored client- or
-// server-side beyond the last four digits.
-export interface PaymentInput {
   card_number: string;
 }
 
-// Mirrors the mock API's PaymentResponse schema.
-export interface PaymentResponse {
-  transaction_id: string;
-  status: string;
-  amount: number;
-  currency: string;
-  last_four_digits: string;
-  payment_method: string;
-  timestamp: string;
-  merchant_reference: string;
-  processing_fee: number;
-}
-
-// Mirrors the mock API's PaymentError schema (e.g. CARD_DECLINED).
+// Error body from a declined charge (402) or validation (422).
 export interface ApiError {
   error_code?: string;
   detail?: string;
+  errors?: Record<string, string[]>;
 }

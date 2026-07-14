@@ -1,6 +1,5 @@
 import { ApiHealthBadge } from "./components/ApiHealthBadge";
-import { BookingProvider } from "./features/booking/BookingContext";
-import { BookingWizard } from "./features/booking/BookingWizard";
+import { BookingForm } from "./features/booking/BookingForm";
 
 function App() {
   return (
@@ -13,9 +12,7 @@ function App() {
       </header>
 
       <main className="px-6 py-10">
-        <BookingProvider>
-          <BookingWizard />
-        </BookingProvider>
+        <BookingForm />
       </main>
     </div>
   );
