@@ -10,9 +10,10 @@ defmodule BounceApiWeb.Router do
 
     get "/health", HealthController, :show
 
+    get "/store", StoreController, :show
+
     post "/bookings", BookingController, :create
     get "/bookings/:id", BookingController, :show
-    post "/bookings/:id/payment", BookingController, :pay
   end
 
   # Enable LiveDashboard in development

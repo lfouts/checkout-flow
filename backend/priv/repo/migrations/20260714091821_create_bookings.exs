@@ -11,8 +11,6 @@ defmodule BounceApi.Repo.Migrations.CreateBookings do
 
       # Booking details
       add :num_bags, :integer, null: false
-      add :dropoff_at, :utc_datetime, null: false
-      add :pickup_at, :utc_datetime, null: false
 
       # Money — always integer cents. Backend is the source of truth for the amount.
       add :currency, :string, null: false, default: "USD"
