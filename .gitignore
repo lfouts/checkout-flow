@@ -1,0 +1,22 @@
+# ---- Elixir / Phoenix (backend/) ----
+backend/_build/
+backend/deps/
+backend/*.ez
+backend/*.beam
+backend/erl_crash.dump
+backend/.elixir_ls/
+backend/priv/static/
+
+# ---- Node / Vite (frontend/) ----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- OS / editor ----
+.DS_Store
+*.log
