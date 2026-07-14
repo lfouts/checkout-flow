@@ -18,8 +18,6 @@ defmodule BounceApi.Bookings.Booking do
              :customer_name,
              :customer_email,
              :num_bags,
-             :dropoff_at,
-             :pickup_at,
              :currency,
              :amount_cents,
              :processing_fee_cents,
@@ -34,8 +32,6 @@ defmodule BounceApi.Bookings.Booking do
     field :customer_email, :string
 
     field :num_bags, :integer
-    field :dropoff_at, :utc_datetime
-    field :pickup_at, :utc_datetime
 
     field :currency, :string, default: "USD"
     field :amount_cents, :integer
@@ -50,40 +46,25 @@ defmodule BounceApi.Bookings.Booking do
   end
 
   @doc """
-  Changeset for creating a booking (customer + reservation details).
+  Changeset for creating a booking.
 
-  TODO: validate `pickup_at` is after `dropoff_at`, `num_bags > 0`, and a
-  reasonable email format. `amount_cents` is set by the backend pricing logic,
-  not accepted from the client.
+  `amount_cents` is computed by the backend (see `BounceApi.Bookings.price_booking/1`)
+  and passed in — it is never taken directly from client input.
   """
   def create_changeset(booking, attrs) do
     booking
-    |> cast(attrs, [
-      :customer_name,
-      :customer_email,
-      :num_bags,
-      :dropoff_at,
-      :pickup_at,
-      :currency,
-      :amount_cents
-    ])
-    |> validate_required([
-      :customer_name,
-      :customer_email,
-      :num_bags,
-      :dropoff_at,
-      :pickup_at,
-      :amount_cents
-    ])
+    |> cast(attrs, [:customer_name, :customer_email, :num_bags, :currency, :amount_cents])
+    |> validate_required([:customer_name, :customer_email, :num_bags, :amount_cents])
+    |> validate_number(:num_bags, greater_than_or_equal_to: 1)
+    |> validate_format(:customer_email, ~r/^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "must be a valid email")
     |> validate_inclusion(:status, @statuses)
   end
 
   @doc """
   Changeset applied after a payment attempt resolves — records the outcome.
 
-  TODO: called from `BounceApi.Payments.charge/2` with the `PaymentResponse`
-  fields (transaction_id, last_four_digits, processing_fee) on success, or a
-  `failed` status on decline.
+  Called from `BounceApi.Payments.charge/2` with the `PaymentResponse` fields on
+  success (status `paid`), or `status: "failed"` on decline.
   """
   def payment_changeset(booking, attrs) do
     booking

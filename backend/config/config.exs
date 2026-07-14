@@ -30,6 +30,13 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# The (single) store this product books storage for.
+# Pricing is a flat rate per bag; all money is in integer cents.
+config :bounce_api, :store,
+  name: "Cody's Cookie Store",
+  price_per_bag_cents: 590,
+  currency: "USD"
+
 # Mock Payments API (see https://fullstack-challenge-api.usebounce.io/v1/docs).
 # Base URL is overridable per-environment / via runtime env (PAYMENTS_API_URL).
 config :bounce_api, :payments,

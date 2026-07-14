@@ -4,42 +4,71 @@ defmodule BounceApi.Bookings do
 
   Pricing lives here so the backend stays the source of truth for the charged
   amount; the client never dictates `amount_cents`.
-
-  NOTE: This is a scaffold. Function bodies are stubbed with `TODO`s.
   """
+  import Ecto.Query, warn: false
 
-  # alias BounceApi.Bookings.Booking  # TODO: uncomment when implementing bodies
+  alias BounceApi.Repo
+  alias BounceApi.Store
+  alias BounceApi.Bookings.Booking
 
   @doc """
-  Compute the price (in cents) for a set of booking params.
-
-  TODO: implement real pricing. Likely: base rate per bag per day, derived from
-  `num_bags` and the `dropoff_at`/`pickup_at` span. Return `{:ok, amount_cents}`.
+  Price a booking (in cents) for `num_bags` at the store's flat per-bag rate.
   """
-  def price_booking(_attrs) do
-    # TODO: replace placeholder with real pricing rules.
-    {:ok, 0}
+  def price_booking(num_bags) when is_integer(num_bags) and num_bags >= 1 do
+    num_bags * Store.price_per_bag_cents()
   end
 
   @doc """
-  Create a `pending` booking from customer + reservation params.
+  Create a `pending` booking. The amount is computed here from `num_bags` — any
+  client-supplied amount/currency is ignored.
 
-  TODO: merge server-computed `amount_cents` from `price_booking/1` into attrs,
-  build `Booking.create_changeset/2`, and insert via `BounceApi.Repo`.
-  Return `{:ok, %Booking{}}` or `{:error, changeset}`.
+  Expects string- or atom-keyed `customer_name`, `customer_email`, `num_bags`.
+  Returns `{:ok, %Booking{}}` or `{:error, changeset}`.
   """
-  def create_booking(_attrs) do
-    # TODO: implement persistence.
-    {:error, :not_implemented}
+  def create_booking(attrs) do
+    num_bags = normalize_num_bags(attrs)
+
+    priced =
+      attrs
+      |> stringify_keys()
+      |> Map.take(["customer_name", "customer_email"])
+      |> Map.merge(%{
+        "num_bags" => num_bags,
+        "currency" => Store.currency(),
+        "amount_cents" => safe_price(num_bags)
+      })
+
+    %Booking{}
+    |> Booking.create_changeset(priced)
+    |> Repo.insert()
   end
 
-  @doc """
-  Fetch a booking by id.
+  @doc "Fetch a booking by id. Returns `{:ok, booking}` or `{:error, :not_found}`."
+  def get_booking(id) do
+    case Repo.get(Booking, id) do
+      nil -> {:error, :not_found}
+      booking -> {:ok, booking}
+    end
+  end
 
-  TODO: `BounceApi.Repo.get(Booking, id)`; return `{:ok, booking}` or `{:error, :not_found}`.
-  """
-  def get_booking(_id) do
-    # TODO: implement lookup.
-    {:error, :not_implemented}
+  # Price only when we have a valid bag count; otherwise let the changeset report
+  # the validation error (amount stays nil -> required error).
+  defp safe_price(num_bags) when is_integer(num_bags) and num_bags >= 1,
+    do: price_booking(num_bags)
+
+  defp safe_price(_), do: nil
+
+  defp normalize_num_bags(attrs) do
+    case stringify_keys(attrs)["num_bags"] do
+      n when is_integer(n) -> n
+      n when is_binary(n) -> String.to_integer(n)
+      _ -> nil
+    end
+  rescue
+    ArgumentError -> nil
+  end
+
+  defp stringify_keys(map) do
+    Map.new(map, fn {k, v} -> {to_string(k), v} end)
   end
 end
