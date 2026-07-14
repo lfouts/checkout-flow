@@ -2,28 +2,39 @@ defmodule BounceApiWeb.BookingController do
   @moduledoc """
   Booking endpoints.
 
-  `create` currently creates and persists a `pending` booking. The payment charge
-  is wired into this same action in the `feature/payment-charge` branch (single
-  create+charge request).
+  `create` performs the full checkout in one request: it prices and persists a
+  `pending` booking, then charges it via the mock Payments API. This matches the
+  mockup's single "Book" action (Placing Booking… → Placed / Retry).
   """
   use BounceApiWeb, :controller
 
   alias BounceApi.Bookings
+  alias BounceApi.Payments
 
   @doc """
-  POST /api/bookings — create a booking. The amount is priced server-side.
+  POST /api/bookings — create the booking and charge it.
+
+  Body: `{num_bags, customer_name, customer_email, card_number}`.
+    * 201 — payment succeeded; returns the `paid` booking
+    * 402 — payment declined; booking persisted as `failed`; `{error_code, detail}`
+    * 422 — invalid input; `{errors}`
   """
   def create(conn, params) do
-    case Bookings.create_booking(params) do
-      {:ok, booking} ->
-        conn
-        |> put_status(:created)
-        |> json(booking)
-
-      {:error, changeset} ->
+    with {:ok, booking} <- Bookings.create_booking(params),
+         {:ok, paid} <- Payments.charge(booking, params["card_number"]) do
+      conn
+      |> put_status(:created)
+      |> json(paid)
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{errors: translate_errors(changeset)})
+
+      {:error, _failed_booking, error} ->
+        conn
+        |> put_status(:payment_required)
+        |> json(%{error_code: error.error_code, detail: error.detail})
     end
   end
 
