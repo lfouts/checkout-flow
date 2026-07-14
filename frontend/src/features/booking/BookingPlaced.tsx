@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import confetti from "canvas-confetti";
 import type { Booking } from "../../api/types";
 import { formatCents } from "../../lib/money";
 
@@ -7,11 +9,42 @@ interface BookingPlacedProps {
   onReset: () => void;
 }
 
+// A celebratory "confetti" GIF from Giphy; falls back to an emoji if it can't load.
+const SUCCESS_GIF =
+  "https://media.giphy.com/media/Ma3LtjLVict40pII8p/giphy-downsized.gif";
+
+// Fire two confetti bursts. Guarded so non-browser environments (e.g. jsdom in
+// tests) can't crash the success screen.
+function celebrate() {
+  try {
+    confetti({ particleCount: 80, spread: 70, origin: { x: 0.3, y: 0.6 } });
+    confetti({ particleCount: 80, spread: 70, origin: { x: 0.7, y: 0.6 } });
+  } catch {
+    // canvas unavailable — skip the effect.
+  }
+}
+
 // The success frame from the mockup: "Booking Placed!".
 export function BookingPlaced({ booking, currency, onReset }: BookingPlacedProps) {
+  const [gifFailed, setGifFailed] = useState(false);
+
+  useEffect(() => {
+    celebrate();
+  }, []);
+
   return (
     <div className="mx-auto flex min-h-[36rem] max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
-      <div className="text-5xl">✅</div>
+      {gifFailed ? (
+        <div className="text-5xl">✅</div>
+      ) : (
+        <img
+          src={SUCCESS_GIF}
+          alt="Celebrating your booking"
+          onError={() => setGifFailed(true)}
+          className="h-40 w-40 rounded-lg object-cover"
+        />
+      )}
+
       <h1 className="text-2xl font-bold text-gray-900">Booking Placed!</h1>
 
       <dl className="w-full space-y-1 text-sm text-gray-600">

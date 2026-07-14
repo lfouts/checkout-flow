@@ -6,6 +6,9 @@ import { BookingForm } from "./BookingForm";
 import { api, ApiRequestError } from "../../api/client";
 import type { Booking } from "../../api/types";
 
+// canvas-confetti touches a real canvas; stub it out under jsdom.
+vi.mock("canvas-confetti", () => ({ default: vi.fn() }));
+
 // Mock the API client; keep a real ApiRequestError so `instanceof`/fields work.
 vi.mock("../../api/client", () => ({
   ApiRequestError: class extends Error {
