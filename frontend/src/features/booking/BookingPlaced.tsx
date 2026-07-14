@@ -2,16 +2,13 @@ import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import type { Booking } from "../../api/types";
 import { formatCents } from "../../lib/money";
+import successGif from "../../assets/booking-success.gif";
 
 interface BookingPlacedProps {
   booking: Booking;
   currency?: string;
   onReset: () => void;
 }
-
-// A celebratory "confetti" GIF from Giphy; falls back to an emoji if it can't load.
-const SUCCESS_GIF =
-  "https://media.giphy.com/media/Ma3LtjLVict40pII8p/giphy-downsized.gif";
 
 // Fire two confetti bursts. Guarded so non-browser environments (e.g. jsdom in
 // tests) can't crash the success screen.
@@ -38,7 +35,7 @@ export function BookingPlaced({ booking, currency, onReset }: BookingPlacedProps
         <div className="text-5xl">✅</div>
       ) : (
         <img
-          src={SUCCESS_GIF}
+          src={successGif}
           alt="Celebrating your booking"
           onError={() => setGifFailed(true)}
           className="h-40 w-40 rounded-lg object-cover"
