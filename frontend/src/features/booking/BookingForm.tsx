@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, ApiRequestError } from "../../api/client";
 import type { Booking } from "../../api/types";
@@ -12,6 +12,12 @@ import { BookingPlaced } from "./BookingPlaced";
 // with Placing Booking… (loading) → Booking Placed! / Retry states.
 export function BookingForm() {
   const { data: store } = useQuery({ queryKey: ["store"], queryFn: api.getStore });
+
+  // Wake the cold-starting payments service as soon as the form loads, so it's
+  // warm by the time the user fills in details and hits Book.
+  useEffect(() => {
+    api.warmup();
+  }, []);
 
   const [numBags, setNumBags] = useState(1);
   const [name, setName] = useState("");

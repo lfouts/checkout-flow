@@ -23,7 +23,10 @@ defmodule BounceApi.Payments.Client do
     * `{:error, %{error_code: "network_error", detail: ...}}` on transport failure
   """
   def create_payment(params) do
-    case Req.post(req(), url: "/payments", json: params) do
+    # Generous receive timeout: the mock API runs on a free tier that cold-starts
+    # (~20-50s) after idle. See `warm/0`, which pre-wakes it on page load.
+    # retry: false — never auto-retry a charge POST (avoid double-charging).
+    case Req.post(req(), url: "/payments", json: params, receive_timeout: 60_000, retry: false) do
       {:ok, %{status: 200, body: body}} ->
         {:ok, body}
 
@@ -38,6 +41,22 @@ defmodule BounceApi.Payments.Client do
         Logger.warning("Payments API request failed: #{inspect(reason)}")
         {:error, %{error_code: "network_error", detail: "Could not reach payment processor"}}
     end
+  end
+
+  @doc """
+  Wake the payments service (fire-and-forget).
+
+  The mock API is on a free tier that spins down when idle, so the first real
+  charge can take ~20-50s. Pinging a cheap GET (`/docs`) when the app loads wakes
+  the container so the actual `create_payment/1` is fast. Never raises.
+  """
+  def warm do
+    Req.get(req(), url: "/docs", receive_timeout: 60_000, retry: false)
+    :ok
+  rescue
+    _ -> :ok
+  catch
+    _, _ -> :ok
   end
 
   # The mock API nests the error under a top-level "detail" key:

@@ -20,7 +20,7 @@ vi.mock("../../api/client", () => ({
       this.errorCode = errorCode;
     }
   },
-  api: { getStore: vi.fn(), createBooking: vi.fn() },
+  api: { getStore: vi.fn(), createBooking: vi.fn(), warmup: vi.fn() },
 }));
 
 const store = { name: "Cody's Cookie Store", price_per_bag_cents: 590, currency: "USD" };
