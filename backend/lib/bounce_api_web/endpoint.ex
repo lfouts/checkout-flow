@@ -1,20 +1,6 @@
 defmodule BounceApiWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :bounce_api
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie,
-    key: "_bounce_api_key",
-    signing_salt: "OyRlYCnz",
-    same_site: "Lax"
-  ]
-
-  socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
-
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -34,12 +20,7 @@ defmodule BounceApiWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :bounce_api
   end
 
-  plug Phoenix.LiveDashboard.RequestLogger,
-    param_key: "request_logger",
-    cookie_key: "request_logger"
-
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -48,7 +29,6 @@ defmodule BounceApiWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
 
   # Allow the Vite dev server (and configured origins) to call the JSON API.
   plug CORSPlug, origin: &BounceApiWeb.Endpoint.cors_origins/0

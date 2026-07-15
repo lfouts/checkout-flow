@@ -57,8 +57,6 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "example.com"
 
-  config :bounce_api, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
-
   config :bounce_api, BounceApiWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [

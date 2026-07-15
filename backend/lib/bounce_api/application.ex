@@ -8,12 +8,7 @@ defmodule BounceApi.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      BounceApiWeb.Telemetry,
       BounceApi.Repo,
-      {DNSCluster, query: Application.get_env(:bounce_api, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: BounceApi.PubSub},
-      # Start a worker by calling: BounceApi.Worker.start_link(arg)
-      # {BounceApi.Worker, arg},
       # Start to serve requests, typically the last entry
       BounceApiWeb.Endpoint
     ]
