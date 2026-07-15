@@ -1,14 +1,6 @@
 defmodule BounceApiWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :bounce_api
 
-  # Serve static files from priv/static.
-  plug Plug.Static,
-    at: "/",
-    from: :bounce_api,
-    gzip: not code_reloading?,
-    only: BounceApiWeb.static_paths(),
-    raise_on_missing_only: code_reloading?
-
   if code_reloading? do
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :bounce_api
