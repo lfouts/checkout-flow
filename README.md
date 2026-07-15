@@ -39,6 +39,32 @@ npm run dev
 
 The frontend reads the API base URL from `VITE_API_URL` (see `frontend/.env.example`).
 
+## Local PostgreSQL (macOS)
+
+The backend expects PostgreSQL on `localhost:5432` with a `postgres` / `postgres`
+superuser role (see `backend/config/dev.exs`):
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16   # run from your own Terminal (a GUI login session)
+```
+
+`brew services` relies on a per-user launchd GUI domain, so starting it from a
+non-GUI shell can report success while Postgres never actually binds. If it won't
+bind, start it directly (not boot-durable, but revives the DB now):
+
+```bash
+pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/pg.log start
+```
+
+**Troubleshooting**
+
+- `Postgrex.Error … 57P01 (admin_shutdown)` / connection refused → Postgres isn't
+  running. Check with `lsof -iTCP:5432 -sTCP:LISTEN`, then start it (above).
+- `:eaddrinuse` on boot → a stale server holds the port:
+  `lsof -ti tcp:4001 | xargs kill` (or run `PORT=4005 mix phx.server`).
+- Reset the dev database: `mix ecto.reset`.
+
 ## Tests
 
 ```bash
