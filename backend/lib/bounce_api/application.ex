@@ -1,6 +1,4 @@
 defmodule BounceApi.Application do
-  # See https://elixir.hexdocs.pm/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -9,12 +7,10 @@ defmodule BounceApi.Application do
   def start(_type, _args) do
     children = [
       BounceApi.Repo,
-      # Start to serve requests, typically the last entry
+      # Serve requests (typically the last entry).
       BounceApiWeb.Endpoint
     ]
 
-    # See https://elixir.hexdocs.pm/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: BounceApi.Supervisor]
     Supervisor.start_link(children, opts)
   end
