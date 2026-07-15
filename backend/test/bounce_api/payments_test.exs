@@ -55,6 +55,25 @@ defmodule BounceApi.PaymentsTest do
     assert error.detail == "Insufficient funds available"
   end
 
+  test "Client.warm/0 pings the service and returns :ok" do
+    parent = self()
+    Req.Test.stub(Client, fn conn ->
+      send(parent, {:warmed, conn.request_path})
+      Req.Test.json(conn, %{})
+    end)
+
+    assert Client.warm() == :ok
+    assert_received {:warmed, "/v1/docs"}
+  end
+
+  test "Client.warm/0 returns :ok even when the service errors" do
+    Req.Test.stub(Client, fn conn ->
+      Plug.Conn.send_resp(conn, 503, "unavailable")
+    end)
+
+    assert Client.warm() == :ok
+  end
+
   test "charge/2 is idempotent for an already-paid booking" do
     Req.Test.stub(Client, fn conn -> Req.Test.json(conn, @success) end)
     {:ok, paid} = Payments.charge(booking!(), "4242424242424242")

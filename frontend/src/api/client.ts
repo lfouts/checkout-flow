@@ -51,6 +51,13 @@ export const api = {
 
   getStore: () => request<Store>("/api/store"),
 
+  // Fire-and-forget: asks the backend to wake the cold-starting payments service
+  // so the first booking is fast. Never throws.
+  warmup: () =>
+    fetch(`${BASE_URL}/api/payments/warmup`, { method: "POST" }).catch(
+      () => undefined,
+    ),
+
   // Creates the booking and charges it in one request.
   createBooking: (input: CreateBookingInput) =>
     request<Booking>("/api/bookings", {
