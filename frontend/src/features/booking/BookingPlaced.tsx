@@ -27,6 +27,7 @@ export function BookingPlaced({ booking, currency, onReset }: BookingPlacedProps
 
   useEffect(() => {
     celebrate();
+    // waiting on nothing to watch, just running once to see the confetti once :)
   }, []);
 
   return (

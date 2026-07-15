@@ -17,7 +17,7 @@ defmodule BounceApiWeb.BookingController do
   Body: `{num_bags, customer_name, customer_email, card_number}`.
     * 201 — payment succeeded; returns the `paid` booking
     * 402 — payment declined; booking persisted as `failed`; `{error_code, detail}`
-    * 422 — invalid input; `{errors}`
+    * 422 — invalid input; `{errors}` - not written to db
   """
   def create(conn, params) do
     with {:ok, booking} <- Bookings.create_booking(params),

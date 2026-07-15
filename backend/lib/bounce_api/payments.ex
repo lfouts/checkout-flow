@@ -18,6 +18,13 @@ defmodule BounceApi.Payments do
 
   Returns `{:ok, booking}` (status `paid`) or
   `{:error, booking, %{error_code:, detail:}}` (status `failed`).
+
+  NOTE: this only protects against calling the function again on a booking you already
+  know is paid. It does not protect against two requests happening at the exact same moment
+  on a booking that's still sitting at "pending" —
+  both could theoretically slip through and try to charge it at once.
+
+  TODO:database-level lock to protect the above from happening
   """
   def charge(%Booking{status: "paid"} = booking, _card_number), do: {:ok, booking}
 
