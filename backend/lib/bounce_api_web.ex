@@ -1,20 +1,7 @@
 defmodule BounceApiWeb do
   @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, components, channels, and so on.
-
-  This can be used in your application as:
-
-      use BounceApiWeb, :controller
-      use BounceApiWeb, :html
-
-  The definitions below will be executed for every controller,
-  component, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
-
-  Do NOT define functions inside the quoted expressions
-  below. Instead, define additional modules and import
-  those modules here.
+  Entrypoint for the web layer. `use BounceApiWeb, :controller` (etc.) injects the
+  shared setup defined in the quoted blocks below — keep those short.
   """
 
   def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
@@ -23,7 +10,6 @@ defmodule BounceApiWeb do
     quote do
       use Phoenix.Router, helpers: false
 
-      # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
     end
