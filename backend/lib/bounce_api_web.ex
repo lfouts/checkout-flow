@@ -29,17 +29,9 @@ defmodule BounceApiWeb do
     end
   end
 
-  def channel do
-    quote do
-      use Phoenix.Channel
-    end
-  end
-
   def controller do
     quote do
-      use Phoenix.Controller, formats: [:html, :json]
-
-      use Gettext, backend: BounceApiWeb.Gettext
+      use Phoenix.Controller, formats: [:json]
 
       import Plug.Conn
 

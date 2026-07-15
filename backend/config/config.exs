@@ -18,9 +18,7 @@ config :bounce_api, BounceApiWeb.Endpoint,
   render_errors: [
     formats: [json: BounceApiWeb.ErrorJSON],
     layout: false
-  ],
-  pubsub_server: BounceApi.PubSub,
-  live_view: [signing_salt: "bATqJt9F"]
+  ]
 
 # Configure Elixir's Logger
 config :logger, :default_formatter,
