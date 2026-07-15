@@ -10,7 +10,6 @@ const queryClient = new QueryClient()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      {/* Router is wired for future route-per-step / confirmation deep links. */}
       <BrowserRouter>
         <App />
       </BrowserRouter>

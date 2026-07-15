@@ -25,9 +25,9 @@ function celebrate() {
 export function BookingPlaced({ booking, currency, onReset }: BookingPlacedProps) {
   const [gifFailed, setGifFailed] = useState(false);
 
+  // Fire the celebration once, when the success screen mounts.
   useEffect(() => {
     celebrate();
-    // waiting on nothing to watch, just running once to see the confetti once :)
   }, []);
 
   return (
