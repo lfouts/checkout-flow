@@ -74,7 +74,7 @@ defmodule BounceApi.PaymentsTest do
     assert Client.warm() == :ok
   end
 
-  test "charge/2 is idempotent for an already-paid booking" do
+  test "charge/2 does not re-charge an already-paid booking" do
     Req.Test.stub(Client, fn conn -> Req.Test.json(conn, @success) end)
     {:ok, paid} = Payments.charge(booking!(), "4242424242424242")
 

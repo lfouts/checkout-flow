@@ -5,7 +5,6 @@ backend/*.ez
 backend/*.beam
 backend/erl_crash.dump
 backend/.elixir_ls/
-backend/priv/static/
 
 # ---- Node / Vite (frontend/) ----
 frontend/node_modules/

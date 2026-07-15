@@ -14,7 +14,7 @@ defmodule BounceApi.Payments do
   a client-supplied value. The card number is forwarded to the processor but never
   persisted — only `last_four_digits` from the response is stored.
 
-  Idempotent: an already-`paid` booking is returned as-is without re-charging.
+  Calling this again on an already-`paid` booking returns it unchanged — it won't charge twice.
 
   Returns `{:ok, booking}` (status `paid`) or
   `{:error, booking, %{error_code:, detail:}}` (status `failed`).

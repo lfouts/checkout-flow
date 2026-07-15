@@ -86,7 +86,7 @@ Bookings are charged via the provided mock endpoint
 
 ## Possible next steps (TODOs)
 
-- Payment idempotency keys (beyond the current already-`paid` guard) for safe retries.
+- Per-request keys to stop a retried booking from charging twice (beyond the current already-`paid` guard).
 - Multi-store support (schema + store selection), currently a single configured store.
 - Server-persisted store catalog instead of app config.
 - Richer client-side card validation (Luhn) and inline field-level errors.
